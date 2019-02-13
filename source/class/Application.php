@@ -7,12 +7,10 @@ use Phi\Core\Interfaces\Renderer;
 use Phi\Routing\Request;
 
 
+use Planck\Application\Traits\HasModel;
 use Planck\Routing\Router;
 use Planck\Routing\Route;
 use Planck\Exception\DoesNotExist;
-use Planck\Model\Entity;
-use Planck\Model\Model;
-use Planck\Model\Repository;
 use Planck\Application\State\Execution;
 use Planck\Traits\HasAspect;
 
@@ -20,6 +18,7 @@ class Application extends \Phi\Application\Application implements Renderer
 {
 
     use HasAspect;
+    use HasModel;
 
 
     const DEFAULT_MODULE_FILEPATH = 'source/class/Module';
@@ -33,12 +32,6 @@ class Application extends \Phi\Application\Application implements Renderer
 
     const STATE_EXECUTION_NAME = Execution::class;
 
-
-
-    /**
-     * @var Model
-     */
-    protected $model;
 
 
     /**
@@ -285,47 +278,6 @@ class Application extends \Phi\Application\Application implements Renderer
     {
 
     }
-
-
-    //=======================================================
-    public function setModel(Model $model)
-    {
-        $this->model = $model;
-        return $this;
-    }
-
-    public function getModel()
-    {
-        return $this->model;
-    }
-    //=======================================================
-
-
-    /**
-     * @param $entityName
-     * @return Entity
-     */
-    public function getModelEntity($entityName)
-    {
-        return $this->get('model')->getEntity($entityName);
-    }
-
-    /**
-     * @param $repositoryName
-     * @return Repository
-     */
-    public function getModelRepository($repositoryName)
-    {
-        $repository =  $this->get('model')->getRepository($repositoryName);
-
-        return $repository;
-    }
-
-    public function getModelInstanceByFingerPrint($fingerPrint)
-    {
-        return $this->getModel()->getInstanceByFingerPrint($fingerPrint);
-    }
-
 
 
 
