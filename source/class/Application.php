@@ -8,7 +8,6 @@ use Phi\Routing\Request;
 
 
 use Planck\Application\Traits\HasModel;
-use Planck\Routing\Router;
 use Planck\Routing\Route;
 use Planck\Exception\DoesNotExist;
 use Planck\Application\State\Execution;
@@ -81,6 +80,28 @@ class Application extends \Phi\Application\Application implements Renderer
         $this->addEventListener(self::EVENT_SUCCESS, array($this, 'doOnSuccess'));
 
     }
+
+
+
+
+    public function __call($name, $arguments)
+    {
+        foreach ($this->getAspects() as $aspect) {
+            if(method_exists($aspect, $name)) {
+                return call_user_func_array(
+                    array($aspect, $name),
+                    $arguments
+                );
+            }
+        }
+        throw new DoesNotExist(
+            '(In '.get_class($this).') Call to undefined method '.get_class($this).'::'.$name
+        );
+
+    }
+
+
+
 
 
 
@@ -279,25 +300,12 @@ class Application extends \Phi\Application\Application implements Renderer
 
     }
 
-
-
-    //=======================================================
-
-    public function getUser($cast = null)
+    /**
+     * @return \Planck\Traits\Aspect[]
+     */
+    public function getAspects()
     {
-        if($this->hasAspect('user')) {
-            return $this->getAspect('user')->getCurrentUser($cast);
-        }
-
-        return false;
-    }
-
-    public function setUser($user)
-    {
-        if($this->hasAspect('user')) {
-            $this->getAspect('user')->setCurrentUser($user);
-        }
-        return $this;
+        return $this->aspects;
     }
 
 
@@ -336,24 +344,6 @@ class Application extends \Phi\Application\Application implements Renderer
         $returnValue = parent::run($request, $variables, $flush);
         return $returnValue;
 
-    }
-
-
-
-
-
-    public function setDefaultRouter(\Phi\Routing\Router $router = null)
-    {
-
-        if($router === null) {
-
-            $this->routers[static::DEFAULT_ROUTER_NAME] = new Router($this);
-        }
-        else {
-            $this->routers[static::DEFAULT_ROUTER_NAME] = $router;
-        }
-
-        return $this;
     }
 
 
