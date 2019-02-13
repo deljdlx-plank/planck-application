@@ -84,24 +84,6 @@ class Application extends \Phi\Application\Application implements Renderer
 
 
 
-    public function __call($name, $arguments)
-    {
-        foreach ($this->getAspects() as $aspect) {
-            if(method_exists($aspect, $name)) {
-                return call_user_func_array(
-                    array($aspect, $name),
-                    $arguments
-                );
-            }
-        }
-        throw new DoesNotExist(
-            '(In '.get_class($this).') Call to undefined method '.get_class($this).'::'.$name
-        );
-
-    }
-
-
-
 
 
 
@@ -300,13 +282,6 @@ class Application extends \Phi\Application\Application implements Renderer
 
     }
 
-    /**
-     * @return \Planck\Traits\Aspect[]
-     */
-    public function getAspects()
-    {
-        return $this->aspects;
-    }
 
 
     //=======================================================
