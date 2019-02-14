@@ -67,6 +67,7 @@ class Extension
 
     public function getFilepath()
     {
+
         return $this->path;
     }
 
@@ -250,14 +251,13 @@ class Extension
             $assets[] = $script;
         }
 
-
-
         $css = File::rglob($assetPath.'/css/*.css');
         foreach ($css as $cssPath) {
             $cssBasename = str_replace($this->getAssetsFilepath(), '', $cssPath);
             $cssFile = $this->getExtensionCSS($cssBasename);
             $assets[] = $cssFile;
         }
+
         return $assets;
     }
 

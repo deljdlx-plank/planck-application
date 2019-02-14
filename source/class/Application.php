@@ -115,7 +115,7 @@ class Application extends \Phi\Application\Application implements Renderer
     {
         foreach ($this->extensions as $extensionName => $value) {
             if($value === false) {
-                $this->loadExtension($extensionName);
+                $this->extensions[$extensionName] = $this->loadExtension($extensionName);
             }
         }
 
@@ -150,7 +150,7 @@ class Application extends \Phi\Application\Application implements Renderer
 
     public function registerExtension(Extension $extension, $routeValidator = null)
     {
-        $this->extensions[$extension->getName()] = $extension;
+        //$this->extensions[$extension->getName()] = $extension;
 
 
         if($routeValidator) {
@@ -195,7 +195,7 @@ class Application extends \Phi\Application\Application implements Renderer
             return $this->extensions[$extensionName];
         }
 
-        throw new Exception('Extension '.$extensionName.' does not exists');
+        throw new DoesNotExist('Extension '.$extensionName.' does not exists');
     }
 
     public function getExtensions()
