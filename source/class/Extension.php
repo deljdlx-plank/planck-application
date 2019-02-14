@@ -4,15 +4,16 @@ namespace Planck\Application;
 
 use Phi\HTML\CSSFile;
 use Phi\HTML\JavascriptFile;
+use Phi\Traits\Introspectable;
 use Planck\Helper\File;
 use Planck\Traits\HasLocalResource;
 use Planck\Traits\IsApplicationObject;
-use Planck\Application\Application;
 class Extension
 {
 
     use IsApplicationObject;
     use HasLocalResource;
+    use Introspectable;
 
 
     protected $namespace;
@@ -36,28 +37,33 @@ class Extension
     protected $urlPattern;
 
 
-    public function __construct(Application $application, $namespace, $path)
+    public function __construct(Application $application = null)
     {
 
-        $this->namespace = $namespace;
-        $this->path = realpath($path);
+        $classDefinitionPath = $this->getDefinitionFolder();
 
-        if(!is_dir($this->path)) {
-            throw new Exception('Extension "'.$path.'"" path does not exist');
-        }
+        $this->sourcePath = $classDefinitionPath;
+        $this->path = realpath($this->sourcePath.'/../..');
 
-        $this->sourcePath = $this->path.'/source/class';
+        //the extension class name is the same as the extension namespace
+        $this->namespace = get_class($this);
 
 
-        $this->autoloader = new \Phi\Core\Autoloader();
-        $this->autoloader->addNamespace($this->namespace, $this->sourcePath);
-        $this->autoloader->register();
 
         $this->setApplication($application);
-
         $this->loadAspects($application);
         $this->loadModules();
+
     }
+
+
+    public function setApplication(Application $application)
+    {
+        $this->application = $application;
+        return $this;
+    }
+
+
 
     public function getFilepath()
     {
@@ -304,4 +310,5 @@ class Extension
 
 
 }
+
 

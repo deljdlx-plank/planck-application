@@ -43,6 +43,7 @@ class Application extends \Phi\Application\Application implements Renderer
      * @var Extension[]
      */
     protected $extensions =array();
+    protected $extensionsRoutePrefix =array();
 
 
     /**
@@ -51,6 +52,10 @@ class Application extends \Phi\Application\Application implements Renderer
     protected $renderer;
 
 
+    /**
+     * @var ExtensionLoader
+     */
+    protected $extensionLoader;
 
 
 
@@ -65,6 +70,9 @@ class Application extends \Phi\Application\Application implements Renderer
         }
 
         parent::__construct(realpath($path), $instanceName, $autobuild);
+
+        $this->extensionLoader = new ExtensionLoader();
+        $this->extensionLoader->setApplication($this);
 
 
         $this->states[static::STATE_EXECUTION_NAME] = new Execution($this);
@@ -83,16 +91,50 @@ class Application extends \Phi\Application\Application implements Renderer
 
 
 
-
-
-
-
     public function initialize()
     {
-        parent::initialize();
 
-        $this->session = new \Planck\Session();
+        parent::initialize();
+        $this->loadExtensions();
     }
+
+
+
+
+    public function addExtension($extensionName, $routeValidator = null)
+    {
+        $this->extensions[$extensionName] = false;
+        if($routeValidator !== null) {
+            $this->extensionsRoutePrefix[$extensionName] = $routeValidator;
+        }
+        return $this;
+    }
+
+
+    public function loadExtensions()
+    {
+        foreach ($this->extensions as $extensionName => $value) {
+            if($value === false) {
+                $this->loadExtension($extensionName);
+            }
+        }
+
+        return $this;
+
+    }
+
+    protected function loadExtension($extensionName)
+    {
+        $extension= $this->extensionLoader->loadExtension($extensionName);
+
+        $pattern = null;
+        if(array_key_exists($extensionName, $this->extensionsRoutePrefix)) {
+            $pattern = $this->extensionsRoutePrefix[$extensionName];
+        }
+        $this->registerExtension($extension, $pattern);
+        return $extension;
+    }
+
 
 
 
@@ -104,16 +146,17 @@ class Application extends \Phi\Application\Application implements Renderer
 
 
 
-
-
     //=======================================================
 
-    public function addExtension(Extension $extension, $urlPattern = '')
+    public function registerExtension(Extension $extension, $routeValidator = null)
     {
         $this->extensions[$extension->getName()] = $extension;
 
 
-        $extension->setURLPattern($urlPattern);
+        if($routeValidator) {
+            $extension->setURLPattern($routeValidator);
+        }
+
 
         $extension->setApplication($this);
 
@@ -125,10 +168,10 @@ class Application extends \Phi\Application\Application implements Renderer
 
                 $router->setApplication($this);
 
-                if($urlPattern !== '') {
-                    $router->addValidator(function ($request) use ($urlPattern) {
+                if(is_string($routeValidator) && $routeValidator !== '') {
+                    $router->addValidator(function ($request) use ($routeValidator) {
 
-                        if (strpos($request->getURI(), $urlPattern) !== false) {
+                        if (strpos($request->getURI(), $routeValidator) !== false) {
                             return true;
                         }
                         return false;
@@ -293,7 +336,7 @@ class Application extends \Phi\Application\Application implements Renderer
     /**
      * @return Renderer
      */
-    public function getRenderer()
+    public function getRenderer() : Renderer
     {
         if(!$this->renderer) {
             $renderer = new \Phi\Core\Renderer();
