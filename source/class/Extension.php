@@ -5,6 +5,7 @@ namespace Planck\Application;
 use Phi\HTML\CSSFile;
 use Phi\HTML\JavascriptFile;
 use Phi\Traits\Introspectable;
+use Planck\Exception\DoesNotExist;
 use Planck\Helper\File;
 use Planck\Traits\HasLocalResource;
 use Planck\Traits\IsApplicationObject;
@@ -207,7 +208,7 @@ class Extension
             return $this->modules[$moduleName];
         }
 
-        throw new Exception('Module '.$moduleName.' does not exists');
+        throw new DoesNotExist('Module '.$moduleName.' does not exists');
     }
 
 
