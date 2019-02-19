@@ -6,6 +6,7 @@ use Phi\HTML\CSSFile;
 use Phi\HTML\JavascriptFile;
 use Phi\Traits\Introspectable;
 use Planck\Exception\DoesNotExist;
+use Planck\Extension\FrontVendor\Package\Planck;
 use Planck\Helper\File;
 use Planck\Traits\HasLocalResource;
 use Planck\Traits\IsApplicationObject;
@@ -54,6 +55,14 @@ class Extension
         $this->setApplication($application);
         $this->loadAspects($application);
         $this->loadModules();
+
+
+
+        /*
+        $this->addFrontPackage(
+            new Planck()
+        );
+        */
 
     }
 

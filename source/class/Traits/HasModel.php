@@ -3,6 +3,7 @@
 
 namespace Planck\Application\Traits;
 
+use Planck\Model\Entity;
 use Planck\Model\Model;
 
 trait HasModel
