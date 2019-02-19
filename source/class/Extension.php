@@ -58,11 +58,11 @@ class Extension
 
 
 
-        /*
+
         $this->addFrontPackage(
             new Planck()
         );
-        */
+
 
     }
 
