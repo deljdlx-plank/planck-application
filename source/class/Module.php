@@ -5,6 +5,7 @@ namespace Planck\Application;
 
 use Planck\Exception\DoesNotExist;
 use Planck\Helper\StringUtil;
+use Planck\Routing\Router;
 use Planck\Traits\HasLocalResource;
 use Planck\Traits\IsApplicationObject;
 
@@ -127,6 +128,9 @@ class Module
     }
 
 
+    /**
+     * @return Router[]
+     */
     public function getRouters()
     {
         if($this->routers === null) {

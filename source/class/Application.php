@@ -4,6 +4,7 @@
 namespace Planck\Application;
 
 use Phi\Core\Interfaces\Renderer;
+use Phi\Core\VirtualPathManager;
 use Phi\Routing\Request;
 
 
@@ -58,6 +59,12 @@ class Application extends \Phi\Application\Application implements Renderer
     protected $extensionLoader;
 
 
+    /**
+     * @var VirtualPathManager
+     */
+    protected $pathManager;
+
+
 
 
 
@@ -87,6 +94,24 @@ class Application extends \Phi\Application\Application implements Renderer
 
         $this->addEventListener(self::EVENT_SUCCESS, array($this, 'doOnSuccess'));
 
+    }
+
+    /**
+     * @param VirtualPathManager $pathManager
+     * @return $this
+     */
+    public function setPathManager(VirtualPathManager $pathManager)
+    {
+        $this->pathManager = $pathManager;
+        return $this;
+    }
+
+    /**
+     * @return VirtualPathManager
+     */
+    public function getPathManager()
+    {
+        return $this->pathManager;
     }
 
 
