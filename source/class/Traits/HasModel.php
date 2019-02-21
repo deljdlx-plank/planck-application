@@ -49,9 +49,20 @@ trait HasModel
     public function getModelRepository($repositoryName)
     {
         $repository =  $this->model->getRepository($repositoryName);
-
         return $repository;
     }
+
+    /**
+     * @param $repositoryName
+     * @return Repository
+     */
+    public function getModelRepositoryByEntityName($entityName)
+    {
+        $entity = $this->getModelEntity($entityName);
+        return $entity->getRepository();
+    }
+
+
 
     public function getModelInstanceByFingerPrint($fingerPrint)
     {
@@ -65,11 +76,29 @@ trait HasModel
      */
     public function getModelInstanceByDescriptor($descriptor, $getNewInstance = false)
     {
+
+        if(array_key_exists('metadata', $descriptor)) {
+
+            return $this->getByMetadata($descriptor, $getNewInstance);
+        }
+        if(array_key_exists('_fingerprint', $descriptor)) {
+            return $this->getModelInstanceByFingerPrint($descriptor['_fingerprint']);
+        }
+
+
+        throw new DoesNotExist('Can not load entity with provided data');
+
+    }
+
+
+    public function getByMetadata($descriptor)
+    {
         $metadata = $descriptor['metadata'];
-        $values = $descriptor['entity'];
+
 
         if(!empty($metadata['fingerprint'])) {
             $entity = $this->getModelInstanceByFingerPrint($metadata['fingerprint']);
+
             return $entity;
         }
 
@@ -80,23 +109,49 @@ trait HasModel
             if(!class_exists($entityClassName)) {
                 throw new DoesNotExist('No entity with class name '.$entityClassName);
             }
-
-
             $entity = $this->getModelEntity($entityClassName);
-            try {
-                $entity->loadBy($values);
-                return $entity;
 
+            return $entity;
+
+            /*
+             *
+             *
+             *
+
+        $values = [];
+        if(array_key_exists('values', $descriptor)) {
+            $values = $descriptor['values'];
+        }
+
+
+
+            try {
+                if(!empty($values)) {
+
+                    $entityDescriptor = $this->getDescriptor();
+                    foreach ($values as $fieldName => $value) {
+                        $fieldDescriptor = $entityDescriptor->getFieldByName($fieldName);
+
+                    }
+
+
+                    die('EXIT '.__FILE__.'@'.__LINE__);
+
+
+                    $entity->loadBy($values);
+                    return $entity;
+                }
+                else if($getNewInstance) {
+                    return $entity;
+                }
             }
             catch(DoesNotExist $exception) {
                 if($getNewInstance) {
                     return $entity;
                 }
             }
+            */
         }
-
-        throw new DoesNotExist('Can not load entity with provided data');
-
     }
 
 
