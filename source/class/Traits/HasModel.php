@@ -7,6 +7,7 @@ use Planck\Helper\StringUtil;
 use Planck\Model\Entity;
 use Planck\Model\Exception\DoesNotExist;
 use Planck\Model\Model;
+use Planck\Model\Repository;
 
 trait HasModel
 {
