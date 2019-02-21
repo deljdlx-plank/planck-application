@@ -63,7 +63,7 @@ trait HasModel
      * @param $metadata
      * @return Entity|\Planck\Model\Repository
      */
-    public function getModelInstanceByDescriptor($descriptor)
+    public function getModelInstanceByDescriptor($descriptor, $getNewInstance = false)
     {
         $metadata = $descriptor['metadata'];
         $values = $descriptor['entity'];
@@ -81,10 +81,18 @@ trait HasModel
                 throw new DoesNotExist('No entity with class name '.$entityClassName);
             }
 
-            $entity = $this->getModelEntity($entityClassName);
-            $entity->loadBy($values);
-            return $entity;
 
+            $entity = $this->getModelEntity($entityClassName);
+            try {
+                $entity->loadBy($values);
+                return $entity;
+
+            }
+            catch(DoesNotExist $exception) {
+                if($getNewInstance) {
+                    return $entity;
+                }
+            }
         }
 
         throw new DoesNotExist('Can not load entity with provided data');
