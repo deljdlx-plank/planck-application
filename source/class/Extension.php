@@ -233,42 +233,106 @@ class Extension
     }
 
 
-    public function getAssets()
+    public function getCSS($toObject = true)
     {
-
         $assets = [];
 
         $assetPath = $this->path.'/asset';
 
+        $css = File::rglob($assetPath.'/css/*.css');
+        foreach ($css as $cssPath) {
+            $cssBasename = str_replace($this->getAssetsFilepath(), '', $cssPath);
+            if($toObject) {
+                $assets[$cssPath] = $this->getExtensionCSS($cssBasename);
+            }
+            else {
+                $assets[$cssPath] = $cssPath;
+            }
+        }
+        return $assets;
+    }
+
+    public function getCSSRequirements()
+    {
+        $assets = [];
+
+        foreach ($this->getFrontPackages() as $package) {
+            $descriptor = $package->getCSSPackageDescriptor();
+            foreach ($descriptor as $filepath => $css) {
+                $assets[$filepath] = $css;
+            }
+        }
+
+        return $assets;
+
+    }
+
+
+    //=======================================================
+
+    public function getJavascriptRequirements()
+    {
+        $assets = [];
+
+        foreach ($this->getFrontPackages() as $package) {
+            $descriptor = $package->getJavascriptPackageDescriptor();
+            foreach ($descriptor as $filepath => $javascript) {
+                $assets[$filepath] = $javascript;
+            }
+        }
+
+        return $assets;
+
+    }
+
+    public function getJavascripts($toObject = true)
+    {
+        $assets = [];
+
+        //=======================================================
+
+        $assetPath = $this->path.'/asset';
 
         $javascripts = glob($assetPath.'/javascript/*.js');
         foreach ($javascripts as $javascript) {
 
-
             $javascript = File::normalize($javascript);
 
-            $javascriptBasename = str_replace($this->getAssetsFilepath(), '', $javascript);
-
-            $script = $this->getExtensionJavascript($javascriptBasename);
-            $assets[] = $script;
+            if($toObject) {
+                $javascriptBasename = str_replace($this->getAssetsFilepath(), '', $javascript);
+                $assets[$javascript] = $this->getExtensionJavascript($javascriptBasename);
+            }
+            else {
+                $assets[$javascript] = $javascript;
+            }
         }
 
 
         $javascripts = File::rglob($assetPath.'/javascript/class/*.js');
         foreach ($javascripts as $javascript) {
             $javascriptBasename = str_replace($this->getAssetsFilepath(), '', $javascript);
-            $script = $this->getExtensionJavascript($javascriptBasename);
-            $assets[] = $script;
-        }
+            if($toObject) {
+                $assets[$javascript] = $this->getExtensionJavascript($javascriptBasename);
+            }
+            else {
+                $assets[$javascript] = $javascript;
+            }
 
-        $css = File::rglob($assetPath.'/css/*.css');
-        foreach ($css as $cssPath) {
-            $cssBasename = str_replace($this->getAssetsFilepath(), '', $cssPath);
-            $cssFile = $this->getExtensionCSS($cssBasename);
-            $assets[] = $cssFile;
         }
 
         return $assets;
+    }
+
+
+    public function getAssets($toObject = true)
+    {
+
+
+        return array_merge(
+            $this->getJavascripts($toObject),
+            $this->getCSS($toObject)
+        );
+
     }
 
 
@@ -279,10 +343,6 @@ class Extension
         $loaderURL = $this->getFromContainer('extension-css-loader-url' );
 
         $url = $loaderURL.'&css='.$css.'&extension='.rawurlencode($this->getName());
-
-        $data = array(
-            'data-name' => $css
-        );
 
         $data = null;
 
@@ -301,12 +361,8 @@ class Extension
 
         $url = $loaderURL.'&javascript='.$javascript.'&extension='.rawurlencode($this->getName());
 
-        $data = array(
-            'data-name' => $javascript
-        );
 
         $data = null;
-
         $javascriptInstance = new JavascriptFile($url, $data);
 
         $javascriptInstance->setKey($javascript);

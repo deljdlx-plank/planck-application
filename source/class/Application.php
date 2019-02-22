@@ -229,21 +229,9 @@ class Application extends \Phi\Application\Application implements Renderer
     }
 
 
-    //=======================================================
 
-    public function getExtensionsAssets()
-    {
-        $extensions = $this->getExtensions();
-        $assets = [];
 
-        foreach ($extensions as $extension) {
-            $extensionAssets = $extension->getAssets();
-            if(!empty($extensionAssets)) {
-                $assets = array_merge($assets, $extensionAssets);
-            }
-        }
-        return $assets;
-    }
+
 
 
 
