@@ -12,6 +12,7 @@ use Planck\Application\Traits\HasModel;
 use Planck\Routing\Route;
 use Planck\Exception\DoesNotExist;
 use Planck\Application\State\Execution;
+use Planck\Runtime;
 use Planck\Traits\HasAspect;
 
 class Application extends \Phi\Application\Application implements Renderer
@@ -65,6 +66,12 @@ class Application extends \Phi\Application\Application implements Renderer
     protected $pathManager;
 
 
+    /**
+     * @var Runtime
+     */
+    protected $runtime;
+
+
 
 
 
@@ -94,6 +101,21 @@ class Application extends \Phi\Application\Application implements Renderer
 
         $this->addEventListener(self::EVENT_SUCCESS, array($this, 'doOnSuccess'));
 
+    }
+
+
+    public function setRuntime(\Planck\Runtime $runtime)
+    {
+        $this->runtime = $runtime;
+        return $this;
+    }
+
+    /**
+     * @return Runtime
+     */
+    public function getRuntime()
+    {
+        return $this->runtime;
     }
 
     /**

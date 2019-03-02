@@ -50,6 +50,10 @@ class ApplicationRegistry
             $application =  new $cast($path, $autobuild);
         }
 
+        $runtime = \Planck\Runtime::getInstance();
+        $application->setRuntime($runtime);
+
+
         if($name === null) {
             $name = static::DEFAULT_APPLICATION_NAME;
         }
