@@ -183,8 +183,9 @@ class Application extends \Phi\Application\Application implements Renderer
     }
 
 
-
-
+    /**
+     * @return \Planck\Application\State\Execution
+     */
     public function getStatus()
     {
         return $this->states[static::STATE_EXECUTION_NAME];
