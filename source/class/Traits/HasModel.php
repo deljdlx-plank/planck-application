@@ -3,6 +3,7 @@
 
 namespace Planck\Application\Traits;
 
+use Planck\Application\Exception;
 use Planck\Helper\StringUtil;
 use Planck\Model\Entity;
 use Planck\Model\Exception\DoesNotExist;
@@ -30,6 +31,9 @@ trait HasModel
      */
     public function getModel()
     {
+        if(!$this->model) {
+            throw new Exception('Application has no model. You must initialize model with call ::setModel() before using it');
+        }
         return $this->model;
     }
 
