@@ -62,8 +62,6 @@ class Extension
         $this->addFrontPackage(
             new Planck()
         );
-
-
     }
 
 
@@ -78,7 +76,7 @@ class Extension
     public function getFilepath()
     {
 
-        return $this->path;
+        return File::normalize($this->path);
     }
 
     public function getAssetsFilepath($normalize = true)
@@ -124,6 +122,29 @@ class Extension
             $routes = array_merge($routes, $moduleRoutes);
         }
         return $routes;
+    }
+
+    public function getEntities()
+    {
+        $entities = [];
+        if(is_dir($this->getFilepath().'/source/class/Model/Entity')) {
+            $files = File::rglob($this->getFilepath().'/source/class/Model/Entity/*.php');
+
+            foreach ($files as $file) {
+
+                $className = str_replace($this->getFilepath().'/source/class/Model/Entity/', '', File::normalize($file));
+
+                $className = str_replace('.php', '', $className);
+                $className = get_class($this).'\Model\Entity\\'.str_replace('/', '\\', $className);
+
+
+                if(class_exists($className)) {
+                    $entities[] = $className;
+                }
+            }
+        }
+
+        return $entities;
     }
 
 

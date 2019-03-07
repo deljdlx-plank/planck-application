@@ -246,6 +246,10 @@ class Application extends \Phi\Application\Application implements Renderer
         throw new DoesNotExist('Extension '.$extensionName.' does not exists');
     }
 
+
+    /**
+     * @return Extension[]
+     */
     public function getExtensions()
     {
         return $this->extensions;
