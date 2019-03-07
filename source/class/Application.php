@@ -305,8 +305,6 @@ class Application extends \Phi\Application\Application implements Renderer
 
 
         foreach ($routes as $key => $route) {
-
-
             if($key == $fingerPrint) {
                 return $route;
             }
@@ -318,11 +316,25 @@ class Application extends \Phi\Application\Application implements Renderer
     public function buildRoute($routeName, array $parameters = array())
     {
         $route = $this->getRouteByFingerPrint($routeName);
+
         if(!$route) {
             throw new DoesNotExist('No route with name '.$routeName.' registered');
         }
 
-        return $route->buildURL($parameters);
+
+
+
+
+
+        $url = $route->buildURL($parameters);
+
+
+        $extensionName = $route->getRouter()->getExtension()->getName();
+        if(array_key_exists($extensionName, $this->extensionsRoutePrefix)) {
+            $url = $this->extensionsRoutePrefix[$extensionName].$url;
+        }
+
+        return $url;
     }
 
 
