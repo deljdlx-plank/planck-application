@@ -43,6 +43,10 @@ class ApplicationRegistry
     public function buildApplication($path, $cast = null, $autobuild = false, $name = null)
     {
 
+        if(!is_dir($path)) {
+            throw new Exception('Path '.$path.' does not exist. Can not build application');
+        }
+
         if($cast === null) {
             $application = new \Planck\Application($path, $autobuild);
         }
