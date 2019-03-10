@@ -18,6 +18,9 @@ class Extension
     use Introspectable;
 
 
+    const ENTITY_FILEPATH = 'source/class/Model/Entity';
+
+
     protected $namespace;
     protected $path;
 
@@ -45,7 +48,7 @@ class Extension
         $classDefinitionPath = $this->getDefinitionFolder();
 
         $this->sourcePath = $classDefinitionPath;
-        $this->path = realpath($this->sourcePath.'/../..');
+        $this->path = File::normalize(realpath($this->sourcePath.'/../..'));
 
         //the extension class name is the same as the extension namespace
         $this->namespace = get_class($this);
@@ -124,15 +127,18 @@ class Extension
         return $routes;
     }
 
+    /**
+     * @return array
+     */
     public function getEntities()
     {
         $entities = [];
-        if(is_dir($this->getFilepath().'/source/class/Model/Entity')) {
-            $files = File::rglob($this->getFilepath().'/source/class/Model/Entity/*.php');
+        if(is_dir($this->getFilepath().'/'.static::ENTITY_FILEPATH)) {
+            $files = File::rglob($this->getFilepath().'/'.static::ENTITY_FILEPATH.'/*.php');
 
             foreach ($files as $file) {
 
-                $className = str_replace($this->getFilepath().'/source/class/Model/Entity/', '', File::normalize($file));
+                $className = str_replace($this->getFilepath().'/'.static::ENTITY_FILEPATH.'/', '', File::normalize($file));
 
                 $className = str_replace('.php', '', $className);
                 $className = get_class($this).'\Model\Entity\\'.str_replace('/', '\\', $className);

@@ -307,12 +307,14 @@ class Application extends \Phi\Application\Application implements Renderer
     {
         $routes = $this->getRoutes();
 
-
         foreach ($routes as $key => $route) {
+
             if($key == $fingerPrint) {
+
                 return $route;
             }
         }
+
 
         return false;
     }
@@ -325,17 +327,16 @@ class Application extends \Phi\Application\Application implements Renderer
             throw new DoesNotExist('No route with name '.$routeName.' registered');
         }
 
-
-
-
-
-
         $url = $route->buildURL($parameters);
 
 
-        $extensionName = $route->getRouter()->getExtension()->getName();
-        if(array_key_exists($extensionName, $this->extensionsRoutePrefix)) {
-            $url = $this->extensionsRoutePrefix[$extensionName].$url;
+
+        if($route->getRouter()->hasExtension()) {
+            $extensionName = $route->getRouter()->getExtension()->getName();
+            if(array_key_exists($extensionName, $this->extensionsRoutePrefix)) {
+                $url = $this->extensionsRoutePrefix[$extensionName].$url;
+            }
+
         }
 
         return $url;
