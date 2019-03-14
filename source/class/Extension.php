@@ -8,6 +8,7 @@ use Phi\Traits\Introspectable;
 use Planck\Exception\DoesNotExist;
 use Planck\Extension\FrontVendor\Package\Planck;
 use Planck\Helper\File;
+use Planck\Routing\Route;
 use Planck\Traits\HasLocalResource;
 use Planck\Traits\IsApplicationObject;
 class Extension
@@ -23,8 +24,10 @@ class Extension
 
     protected $namespace;
     protected $path;
+    protected $sourcePath;
 
     protected $autoloader;
+
 
 
     /**
@@ -40,6 +43,12 @@ class Extension
 
 
     protected $urlPattern;
+
+
+    /**
+     * @var Aspect[]
+     */
+    protected $aspects = [];
 
 
     public function __construct(Application $application = null)
@@ -163,9 +172,10 @@ class Extension
 
 
     /**
+     * @param Application $application
      * @return $this
      */
-    public function loadAspects($application)
+    public function loadAspects(Application $application)
     {
         $aspectFilepath = $this->sourcePath.'/Aspect';
 
@@ -187,6 +197,9 @@ class Extension
             $aspect = new $className($application);
 
 
+            /**
+             * @var Aspect $aspect
+             */
             $application->addAspect($aspect, $aspect->getName());
 
             $this->aspects[$aspect->getName()] = $aspect;
@@ -231,11 +244,10 @@ class Extension
         return $this->modules;
     }
 
-
     /**
      * @param $moduleName
      * @return Module
-     * @throws Exception
+     * @throws DoesNotExist
      */
     public function getModule($moduleName)
     {

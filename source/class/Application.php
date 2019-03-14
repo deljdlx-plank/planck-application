@@ -4,7 +4,7 @@
 namespace Planck\Application;
 
 use Phi\Core\Interfaces\Renderer;
-use Phi\Core\VirtualPathManager;
+
 use Phi\Routing\Request;
 
 
@@ -36,34 +36,11 @@ class Application extends \Phi\Application\Application implements Renderer
 
 
     /**
-     * @var ApplicationState[]
-     */
-    protected $states;
-
-
-    /**
-     * @var Extension[]
-     */
-    protected $extensions =array();
-    protected $extensionsRoutePrefix =array();
-
-
-    /**
      * @var Renderer
      */
     protected $renderer;
 
 
-    /**
-     * @var ExtensionLoader
-     */
-    protected $extensionLoader;
-
-
-    /**
-     * @var VirtualPathManager
-     */
-    protected $pathManager;
 
 
     /**
@@ -72,6 +49,10 @@ class Application extends \Phi\Application\Application implements Renderer
     protected $runtime;
 
 
+    /**
+     * @var State[]
+     */
+    protected $states = [];
 
 
 
@@ -83,10 +64,8 @@ class Application extends \Phi\Application\Application implements Renderer
             throw new Exception('Application can not be initialized. Path '.$path.' does not exists');
         }
 
-        parent::__construct(realpath($path), $instanceName, $autobuild);
+        parent::__construct(realpath($path));
 
-        $this->extensionLoader = new ExtensionLoader();
-        $this->extensionLoader->setApplication($this);
 
 
         $this->states[static::STATE_EXECUTION_NAME] = new Execution($this);
@@ -104,7 +83,7 @@ class Application extends \Phi\Application\Application implements Renderer
     }
 
 
-    public function setRuntime(\Planck\Runtime $runtime)
+    public function setRuntime(Runtime $runtime)
     {
         $this->runtime = $runtime;
         return $this;
@@ -118,69 +97,9 @@ class Application extends \Phi\Application\Application implements Renderer
         return $this->runtime;
     }
 
-    /**
-     * @param VirtualPathManager $pathManager
-     * @return $this
-     */
-    public function setPathManager(VirtualPathManager $pathManager)
-    {
-        $this->pathManager = $pathManager;
-        return $this;
-    }
-
-    /**
-     * @return VirtualPathManager
-     */
-    public function getPathManager()
-    {
-        return $this->pathManager;
-    }
 
 
 
-    public function initialize()
-    {
-
-        parent::initialize();
-        $this->loadExtensions();
-    }
-
-
-
-
-    public function addExtension($extensionName, $routeValidator = null)
-    {
-        $this->extensions[$extensionName] = false;
-        if($routeValidator !== null) {
-            $this->extensionsRoutePrefix[$extensionName] = $routeValidator;
-        }
-        return $this;
-    }
-
-
-    public function loadExtensions()
-    {
-        foreach ($this->extensions as $extensionName => $value) {
-            if($value === false) {
-                $this->extensions[$extensionName] = $this->loadExtension($extensionName);
-            }
-        }
-
-        return $this;
-
-    }
-
-    protected function loadExtension($extensionName)
-    {
-        $extension= $this->extensionLoader->loadExtension($extensionName);
-
-        $pattern = null;
-        if(array_key_exists($extensionName, $this->extensionsRoutePrefix)) {
-            $pattern = $this->extensionsRoutePrefix[$extensionName];
-        }
-        $this->registerExtension($extension, $pattern);
-        return $extension;
-    }
 
 
     /**
@@ -194,44 +113,6 @@ class Application extends \Phi\Application\Application implements Renderer
 
 
 
-    //=======================================================
-
-    public function registerExtension(Extension $extension, $routeValidator = null)
-    {
-        //$this->extensions[$extension->getName()] = $extension;
-
-
-        if($routeValidator) {
-            $extension->setURLPattern($routeValidator);
-        }
-
-
-        $extension->setApplication($this);
-
-
-        foreach ($extension->getModules() as $module) {
-
-            $routers = $module->getRouters();
-            foreach ($routers as $router) {
-
-                $router->setApplication($this);
-
-                if(is_string($routeValidator) && $routeValidator !== '') {
-                    $router->addValidator(function ($request) use ($routeValidator) {
-
-                        if (strpos($request->getURI(), $routeValidator) !== false) {
-                            return true;
-                        }
-                        return false;
-                    });
-                }
-                $this->addRouter($router, get_class($router));
-            }
-        }
-
-
-        return $this;
-    }
 
     public function getExtension($extensionName)
     {
@@ -274,16 +155,7 @@ class Application extends \Phi\Application\Application implements Renderer
 
         $registeredRouters = [];
 
-        foreach ($this->extensions as $extension) {
-            $extensionRoutes = $extension->getRoutes();
-            foreach ($extensionRoutes as $routeName => $route) {
 
-                $registeredRouters[get_class($route->getRouter())] = true;
-
-                $key = '/'.$routeName;
-                $routes[$key] = $route;
-            }
-        }
 
         foreach ($this->routers as $router) {
             if(array_key_exists(get_class($router), $registeredRouters)) {
@@ -328,16 +200,6 @@ class Application extends \Phi\Application\Application implements Renderer
         }
 
         $url = $route->buildURL($parameters);
-
-
-
-        if($route->getRouter()->hasExtension()) {
-            $extensionName = $route->getRouter()->getExtension()->getName();
-            if(array_key_exists($extensionName, $this->extensionsRoutePrefix)) {
-                $url = $this->extensionsRoutePrefix[$extensionName].$url;
-            }
-
-        }
 
         return $url;
     }

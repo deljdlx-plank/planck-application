@@ -5,7 +5,7 @@ namespace Planck\Application;
 
 use Planck\View\Theme;
 
-abstract class WebApplication extends Application
+abstract class WebApplication extends ExtendableApplication
 {
 
     /**
