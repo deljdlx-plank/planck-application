@@ -43,6 +43,12 @@ class ApplicationRegistry
     public function buildApplication($path, $cast = null, $autobuild = false, $name = null)
     {
 
+
+
+        if($name === null) {
+            $name = static::DEFAULT_APPLICATION_NAME;
+        }
+
         if(!is_dir($path)) {
             throw new Exception('Path '.$path.' does not exist. Can not build application');
         }
@@ -54,13 +60,13 @@ class ApplicationRegistry
             $application =  new $cast($path, $autobuild);
         }
 
+
+
+
         $runtime = \Planck\Runtime::getInstance();
         $application->setRuntime($runtime);
 
 
-        if($name === null) {
-            $name = static::DEFAULT_APPLICATION_NAME;
-        }
 
         static::$applications[$name] = $application;
 

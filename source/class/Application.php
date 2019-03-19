@@ -8,6 +8,7 @@ use Phi\Core\Interfaces\Renderer;
 use Phi\Routing\Request;
 
 
+use Phi\Traits\Introspectable;
 use Planck\Application\Traits\HasModel;
 use Planck\Routing\Route;
 use Planck\Exception\DoesNotExist;
@@ -20,6 +21,7 @@ class Application extends \Phi\Application\Application implements Renderer
 
     use HasAspect;
     use HasModel;
+    use Introspectable;
 
 
     const DEFAULT_MODULE_FILEPATH = 'source/class/Module';
@@ -96,6 +98,18 @@ class Application extends \Phi\Application\Application implements Renderer
     {
         return $this->runtime;
     }
+
+
+
+
+    public function getPublicFilepath()
+    {
+        $defaultDir = realpath($this->getDefinitionFolder().'/../../www');
+        if(!$defaultDir || !is_dir($defaultDir)) {
+            throw new DoesNotExist('Default Public filepath does not exist ('.$this->getDefinitionFolder().'/../../www'.')');
+        }
+    }
+
 
 
 
