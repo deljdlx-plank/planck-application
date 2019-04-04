@@ -14,7 +14,7 @@ abstract class WebApplication extends ExtendableApplication
     protected $theme;
 
 
-    public abstract function getPublicFilepath();
+    //public abstract function getPublicFilepath();
 
 
     public abstract function getJavascriptFilePath();
@@ -26,6 +26,18 @@ abstract class WebApplication extends ExtendableApplication
     public abstract function getTheme();
 
 
+
+
+    //=======================================================
+
+
+    public function getPublicFilepath()
+    {
+        $defaultDir = realpath($this->getDefinitionFolder().'/../../www');
+        if(!$defaultDir || !is_dir($defaultDir)) {
+            throw new DoesNotExist('Default Public filepath does not exist ('.$this->getDefinitionFolder().'/../../www'.')');
+        }
+    }
 
 
     //=======================================================

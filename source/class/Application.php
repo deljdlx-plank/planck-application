@@ -102,13 +102,6 @@ class Application extends \Phi\Application\Application implements Renderer
 
 
 
-    public function getPublicFilepath()
-    {
-        $defaultDir = realpath($this->getDefinitionFolder().'/../../www');
-        if(!$defaultDir || !is_dir($defaultDir)) {
-            throw new DoesNotExist('Default Public filepath does not exist ('.$this->getDefinitionFolder().'/../../www'.')');
-        }
-    }
 
 
 
